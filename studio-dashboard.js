@@ -1,98 +1,131 @@
+const levelUrl = 'http://localhost:8080/data';
+const domain = "https://piradio.de/";
+const SEC = 1000;
+
 function formatTime(date) {
-    var hours   = date.getHours();
+    var hours = date.getHours();
     var minutes = date.getMinutes();
-    if (hours < 10)   hours = "0" + hours;
+    if (hours < 10) hours = "0" + hours;
     if (minutes < 10) minutes = "0" + minutes;
     return `${hours}:${minutes}`
+}
+
+function showRuntime(events) {
+    var now = Date.now();
+    for (let event of events) {
+        let started = (now - Date.parse(event.start)) / 1000;
+        let stops = (Date.parse(event.end) - now) / 1000;
+        if (started > 0 && stops > 0) {
+            $('#running').text('-' + duration(stops + 1));
+        }
+    }
+}
+
+function loadEventDetails(url) {
+    $('#details').load(url, function() {
+        $('#details img[src]').each(function() {
+            let val = $(this).attr("src");
+            if (val.startsWith("/media")) $(this).attr("src", domain + val.replace(new RegExp("/media/+images/"), "/media/thumbs/"));
+        });
+    })
 }
 
 var oldEvents;
 function showEvents(events) {
     var now = Date.now();
-    var html  ="<table>";
+    var html = "<table>";
     for (let event of events) {
-        let started  = ( now - Date.parse(event.start) ) / 1000;
-        let stops    = ( Date.parse(event.end) - now ) / 1000;
-        let url = event.domain + 'agenda/dashboard/sendung/' + event.id + '/';
-        html += '<tr href="' + url + '">'
+        let started = (now - Date.parse(event.start)) / 1000;
+        let stops = (Date.parse(event.end) - now) / 1000;
+        let classes = 'time';
+        if (started > 0 & stops > 0) classes += ' running';
+        if (started > 0 & stops < 0) classes += ' done';
+        let url = domain + 'agenda/dashboard/sendung/' + event.id + '/';
+        html += '<tr href="' + url + '" class="' + classes + '">'
 
         html += '<td class="time">'
-        html += formatTime(new Date(Date.parse(event.start)))+''
+        html += formatTime(new Date(Date.parse(event.start))) + ''
         html += ' - '
-        html += formatTime(new Date(Date.parse(event.end)))+''
+        html += formatTime(new Date(Date.parse(event.end))) + ''
         html += '</td>'
 
         html += '<td class="title">'
         html += event.title;
-        if (started > 0 && stops > 0) {
-            html += '<span class="time"> (noch '+duration(stops)+')</span>';
-        }
         html += '</td>'
         html += '</tr>'
     }
     html += '</table>'
-    if (html != oldEvents){
-        $('#event').html(html);
-        $('#event tr').on("click", function(){
-            $('#details').load($(this).attr("href"));
-        })
+    if (html != oldEvents) {
+        $('#events').html(html);
+        $('#events tr').on("click", function() {
+            loadEventDetails($(this).attr("href"));
+        });
+        var elem = document.querySelector('.running');
+        if (elem) {
+            elem.scrollIntoView();
+            loadEventDetails($('.running').attr("href"));
+        }
     }
     oldEvents = html;
 }
 
 var events;
-function updateEvent(){
-    $.getJSON( 'https://piradio.de/agenda/dashboard/')
-    .done( function(entries) {
-        events = entries
-        showEvents(events);
-    });
+function updateEvents() {
+    $.getJSON(domain + '/agenda/dashboard/')
+        .done(function(entries) {
+            events = entries
+            showEvents(events);
+        })
+        .fail(function(entries) {
+            setTimeout(updateEvents(), 3 * SEC);
+        });
+;
 }
 
-function setChannel(peakId, peak, rmsId, rms){
-    $(peakId+" #peakLabel").html( Math.round(peak) );
-    $(rmsId+" #rmsLabel").html( Math.round(rms) );
+function setChannel(peakId, peak, rmsId, rms) {
+    $(peakId + " #peakLabel").html(Math.round(peak));
+    $(rmsId + " #rmsLabel").html(Math.round(rms));
 
     peak *= -1;
-    if (peak < 1){
+    if (peak < 1) {
         $(peakId).addClass("loudPeak");
-    }else{
+    } else {
         $(peakId).removeClass("loudPeak");
     }
 
-    if (peak < 3){
+    if (peak < 3) {
         $(peakId).addClass("mediumPeak");
-    }else{
+    } else {
         $(peakId).removeClass("mediumPeak");
     }
-    
+
     rms *= -1;
     if (rms < 18) {
         $(rmsId).addClass("loudRms");
-    }else{
+    } else {
         $(rmsId).removeClass("loudRms");
     }
 
     if (rms > 30) {
         $(rmsId).addClass("silent");
-    }else{
+    } else {
         $(rmsId).removeClass("silent");
     }
-    
-    var height  = 100 - peak;
-    $(peakId).css("height",  height+"%");
-    
-    var height  = 100 - rms;
-    $(rmsId).css("height",  height+"%");
+
+    var height = 100 - peak;
+    $(peakId).css("height", height + "%");
+
+    var height = 100 - rms;
+    $(rmsId).css("height", height + "%");
 
 }
 
-function showLevel(){
-    $.getJSON( 'http://localhost:8080/data', 
+function showLevel() {
+    $.getJSON(levelUrl,
         function(data) {
-            setChannel("#leftIn #peak",   data.in.peakLeft,   "#leftIn #rms",   data.in.rmsLeft);
-            setChannel("#rightIn #peak",  data.in.peakRight,  "#rightIn #rms",  data.in.rmsRight);
-            setChannel("#leftOut #peak",  data.out.peakLeft,  "#leftOut #rms",  data.out.rmsLeft);
+            setChannel("#leftIn #peak", data.in.peakLeft, "#leftIn #rms", data.in.rmsLeft);
+            setChannel("#rightIn #peak", data.in.peakRight, "#rightIn #rms", data.in.rmsRight);
+            setChannel("#leftOut #peak", data.out.peakLeft, "#leftOut #rms", data.out.rmsLeft);
             setChannel("#rightOut #peak", data.out.peakRight, "#rightOut #rms", data.out.rmsRight);
         }
     );
@@ -100,50 +133,50 @@ function showLevel(){
 
 function updateClock() {
     var now = new Date();
-    $('#clock').html(now.toLocaleTimeString());
-}    
-
-function duration ( seconds ) {
-    var levels = [
-        [Math.floor(seconds / 31536000), 'Jahre'],
-        [Math.floor((seconds % 31536000) / 86400), 'Tage'],
-        [Math.floor(((seconds % 31536000) % 86400) / 3600), 'Stunden'],
-        [Math.floor((((seconds % 31536000) % 86400) % 3600) / 60), 'Min.'],
-        [(((seconds % 31536000) % 86400) % 3600) % 60, 'Sek.'],
-    ];
-    var words = [];
-
-    for (var i = 0, max = levels.length; i < max; i++) {
-        if ( levels[i][0] === 0 ) continue;
-        words.push( ' ' + levels[i][0] + ' ' + (levels[i][0] === 1 ? levels[i][1].substr(0, levels[i][1].length-1): levels[i][1]));
-    };
-    return words[0];
+    $('#time').html(now.toLocaleTimeString());
 }
 
-$( document ).ready(
+function duration(seconds) {
+    var h = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    var m = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+    var s = Math.floor(((seconds % 31536000) % 86400) % 3600) % 60;
+    return [
+        h < 10 ? '0' + h : h,
+        m < 10 ? '0' + m : m,
+        s < 10 ? '0' + s : s
+    ].join(':');
+}
+
+$(document).ready(
     function() {
         $('#leftIn').hide();
         $('#rightIn').hide();
         showLevel();
         updateClock();
-        updateEvent();
-        const SEC = 1000;
-        setInterval(
-            function(){
-                showLevel();
-            }, 5*SEC
-        );
-        setInterval(
-            function(){
-                updateClock();
-                showEvents(events);
-            }, 1*SEC
-        );
-        setInterval(
-            function(){
-                updateEvent();
-            }, 60*SEC
-        );
+        updateEvents();
+        setInterval(function() {
+            showLevel();
+        }, 5 * SEC);
+
+        setInterval(function() {
+            updateClock();
+            showRuntime(events);
+            showEvents(events);
+        }, 1 * SEC);
+
+        setInterval(function() {
+            updateEvents();
+        }, 60 * SEC);
+
+        $('#meters').on('click', function() {
+            $('#leftIn').toggle();
+            $('#rightIn').toggle();
+        })
+        $('#events').on('click'), function() {
+            var elem = document.querySelector('.running');
+            if (elem) elem.scrollIntoView()
+        }
+
     }
 );
 

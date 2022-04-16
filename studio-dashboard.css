@@ -1,150 +1,157 @@
-*{
-    color:white;
-    font-family:roboto,sans;
-    padding:0;
-    margin:0;
-    font-size:1rem;
-    line-height:1.5;        
+* {
+    color: white;
+    font-family: roboto, sans;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
-html,body{
-    background:black;
-    font-family:roboto,sans;
-    color:white;
+body {
+    background: black;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    gap: 0.5rem;
 }
 
-a{
-    text-decoration:none;
-    color:white;
+a {
+    text-decoration: none;
+    color: white;
 }
-#content{
+
+#status {
+    height: 99vh;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.5rem;
+}
+
+.card {
+    background: #222;
+}
+
+#clocks {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#time, #running {
+    font-size: 2rem;
+    padding: 1rem;
+}
+
+tr.done td {
+    color: #aaa;
+}
+
+#events {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    gap: 0.5rem;
+}
+
+#details {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+}
+
+#events tr td {
+    cursor: pointer;
+    min-width: 12ch;
+}
+
+#events tr.running td.title {
+    font-weight: bold;
+}
+
+#events tr.stopped a {
+    color: #ccc;
+}
+
+#details img {
+    float: right;
+}
+
+#details img {
+    width: 25vh;
+    padding: 1rem;
+}
+
+#meters {
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.bar{
-    background:black;
-    text-align:center;
-    width: 150px;
-    height: 460px;
-    border: 6px solid #999;
+.bar {
+    text-align: center;
+    width: 10vw;
+    height: 100vh;
     overflow: hidden;
     position: relative;
 }
 
-.bar{
-    margin-left:0.5rem;
-}
-
 #rms, #peak {
-    color:white;
-    background:green;
-    font-size:2rem;
+    color: white;
+    background: green;
     width: 100%;
     overflow: hidden;
     position: absolute;
-    left: -6px;
-
-    border-top: 0;
-    border: 6px solid #999;
     bottom: 0;
     height: 0%;
     transition: all 1s linear;
-    vertical-align:bottom;
+    vertical-align: bottom;
 }
 
-#peak{
-    color:black;
-    background:#66ff66;
-    bottom-border:0;
+#rmsLabel, #peakLabel {
+    font-size: 2rem;
 }
 
-#peak.mediumPeak{
-    color:black;
-    background:yellow\!important;
+#peak {
+    color: black;
+    background: #66ff66;
+}
+
+#peak.mediumPeak {
+    color: black;
+    background: yellow\!important;
     transition: all 1s linear;
 }
 
-#peak.loudPeak{
-    color:white;
-    background:red\!important;
+#peak.loudPeak {
+    color: white;
+    background: red\!important;
     transition: all 1s linear;
 }
 
-#rms.loudRms{
-    color:white;
-    background:red\!important;
+#rms.loudRms {
+    color: white;
+    background: red\!important;
     transition: all 1s linear;
 }
 
-#rms.silent{
-    color:black;
-    background:yellow;
+#rms.silent {
+    color: black;
+    background: yellow;
     transition: all 1s linear;
 }
 
-#rightIn{
-    margin-right:3em;
+#rightIn {
+    margin-left: 0.5rem;
+    margin-right: 1rem;
 }
 
-button{
-    position:absolute;
-    top:0;
-    right:0;
-    padding:1rem;
-    background:#666;
-    color:white;
-    border:0;
+#rightOut {
+    margin-left: 0.5rem;
 }
 
-#clock{
-    color:white;
-    font-size:2rem;
-}
-
-#event tr td.title span.time {
-    font-size:1rem;
-    padding:1rem;
-    cursor:;
-}
-
-#event tr:nth-child(1) td.time,
-#event tr:nth-child(1) td.title,
-#event tr:nth-child(1) td.title span.time{
-    font-weight:bold;
-}
-
-#event tr:nth-child(2) a {
-    color:#ccc;
-}
-
-#event tr:nth-child(3) a{
-    color:#999;
-}
-
-#details {
-    height:290px;
-    overflow-y: scroll;
-}
-
-.dtstart, .dtend{
-    display:none;
-}
-
-#content,#details,#clock, #content{
-    bordear:red 1px solid;
-}
-
-#col1 {
-    float:left;
-    height:100%;
-    max-width:66%;
-}
-
-#col1 > div{
-    background:#333;
-    padding:6px;
-    margin:6px;
-    border-radius:6px;   
+adiv {
+    border: red 1px solid;
 }
