@@ -1,4 +1,4 @@
-const levelUrl = 'http://localhost:8080/data';
+const levelUrl = 'https://piradio.de/level/data';
 const domain = "https://piradio.de/";
 const SEC = 1000;
 
@@ -10,13 +10,26 @@ function formatTime(date) {
     return `${hours}:${minutes}`
 }
 
+function getNow(){
+    var now = new Date();
+    now.setMonth(4-1);
+    now.setDate(14);
+    return now;
+}
+
 function showRuntime(events) {
-    var now = Date.now();
+    var now = getNow();
     for (let event of events) {
         let started = (now - Date.parse(event.start)) / 1000;
         let stops = (Date.parse(event.end) - now) / 1000;
         if (started > 0 && stops > 0) {
+            if (stops < 180 ){
+                $('#running').addClass("ending")
+            } else { 
+                $('#running').removeClass("ending");
+            }
             $('#running').text('-' + duration(stops + 1));
+            $('#progress').attr("value", 100*started/(started+stops))
         }
     }
 }
@@ -32,25 +45,27 @@ function loadEventDetails(url) {
 
 var oldEvents;
 function showEvents(events) {
-    var now = Date.now();
+    var now = getNow();
     var html = "<table>";
     for (let event of events) {
         let started = (now - Date.parse(event.start)) / 1000;
         let stops = (Date.parse(event.end) - now) / 1000;
         let classes = 'time';
+        let ending = false;
         if (started > 0 & stops > 0) classes += ' running';
+        if (started > 0 & stops > 0 & stops < 180*SEC) ending=true;
         if (started > 0 & stops < 0) classes += ' done';
         let url = domain + 'agenda/dashboard/sendung/' + event.id + '/';
         html += '<tr href="' + url + '" class="' + classes + '">'
 
         html += '<td class="time">'
         html += formatTime(new Date(Date.parse(event.start))) + ''
-        html += ' - '
+        html += '-'
         html += formatTime(new Date(Date.parse(event.end))) + ''
         html += '</td>'
-
         html += '<td class="title">'
         html += event.title;
+        if (started > 0 & stops > 0) html += '<br><progress style="width:100%" id="progress" value="0" max="100"></progress>';
         html += '</td>'
         html += '</tr>'
     }
@@ -71,7 +86,7 @@ function showEvents(events) {
 
 var events;
 function updateEvents() {
-    $.getJSON(domain + '/agenda/dashboard/')
+    $.getJSON(domain + '/agenda/dashboard/date/2022-04-14/')
         .done(function(entries) {
             events = entries
             showEvents(events);
@@ -133,7 +148,7 @@ function showLevel() {
 
 function updateClock() {
     var now = new Date();
-    $('#time').html(now.toLocaleTimeString());
+    $('#time').text(now.toLocaleTimeString());
 }
 
 function duration(seconds) {
@@ -172,11 +187,9 @@ $(document).ready(
             $('#leftIn').toggle();
             $('#rightIn').toggle();
         })
-        $('#events').on('click'), function() {
-            var elem = document.querySelector('.running');
-            if (elem) elem.scrollIntoView()
-        }
-
+        $('#time').on('click', function() {
+            location.reload();
+        });
     }
 );
 

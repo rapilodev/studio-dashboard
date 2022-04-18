@@ -1,5 +1,33 @@
+/* roboto-regular - latin_latin-ext */
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('fonts/roboto-v18-latin_latin-ext-regular.eot'); /* IE9 Compat Modes */
+    src: local('Roboto'), local('Roboto-Regular'),
+       url('fonts/roboto-v18-latin_latin-ext-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('fonts/roboto-v18-latin_latin-ext-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('fonts/roboto-v18-latin_latin-ext-regular.woff') format('woff'), /* Modern Browsers */
+       url('fonts/roboto-v18-latin_latin-ext-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('fonts/roboto-v18-latin_latin-ext-regular.svg#Roboto') format('svg'); /* Legacy iOS */
+}
+
+/* open-sans-regular - latin_latin-ext */
+@font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('fonts/open-sans-v15-latin_latin-ext-regular.eot'); /* IE9 Compat Modes */
+    src: local('Open Sans Regular'), local('OpenSans-Regular'),
+       url('fonts/open-sans-v15-latin_latin-ext-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('fonts/open-sans-v15-latin_latin-ext-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('fonts/open-sans-v15-latin_latin-ext-regular.woff') format('woff'), /* Modern Browsers */
+       url('fonts/open-sans-v15-latin_latin-ext-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('fonts/open-sans-v15-latin_latin-ext-regular.svg#OpenSans') format('svg'); /* Legacy iOS */
+}
+
 * {
-    color: white;
+    color: #fff;
     font-family: roboto, sans;
     padding: 0;
     margin: 0;
@@ -30,7 +58,7 @@ a {
 }
 
 .card {
-    background: #222;
+    background: #111;
 }
 
 #clocks {
@@ -44,8 +72,12 @@ a {
     padding: 1rem;
 }
 
+.ending {
+    background:red;
+}
+
 tr.done td {
-    color: #aaa;
+    opacity: 0.5;
 }
 
 #events {
@@ -111,6 +143,7 @@ tr.done td {
 }
 
 #rmsLabel, #peakLabel {
+    text-shadow: 1px 1px 1px black;
     font-size: 2rem;
 }
 
@@ -126,13 +159,11 @@ tr.done td {
 }
 
 #peak.loudPeak {
-    color: white;
     background: red\!important;
     transition: all 1s linear;
 }
 
 #rms.loudRms {
-    color: white;
     background: red\!important;
     transition: all 1s linear;
 }
@@ -152,6 +183,3 @@ tr.done td {
     margin-left: 0.5rem;
 }
 
-adiv {
-    border: red 1px solid;
-}
