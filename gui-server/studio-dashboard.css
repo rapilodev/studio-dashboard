@@ -1,0 +1,206 @@
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Roboto'), local('Roboto-Regular'),
+       url('fonts/roboto-v18-latin_latin-ext-regular.woff2') format('woff2')
+}
+
+* {
+    color: #fff;
+    font-family: Roboto;
+    padding: 0;
+    margin: 0;
+    line-height: 1.5;
+}
+
+body {
+    background: #111;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    gap: 0.5vmax;
+    overflow:hidden;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+#status {
+    height: 99vmax;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.5vmax;
+}
+
+.card {
+    background: #000;
+}
+
+#clocks {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#time, #running {
+    font-family: DSEG7-Classic;
+    font-size: 5vmax;
+    padding: 1vmax;
+}
+
+.ending > svg#clock2 > text > tspan,
+.ending > svg#clock2 > circle.second.active{
+    fill:red;
+}
+
+#events {
+    flex: 1;
+    gap: 0.5vmax;
+    text-align:center;
+    display:flex;
+    overflow:hidden;
+}
+
+#events .time,
+#events .title {
+    font-size:2vmax;
+}
+
+#events .details {
+    font-size:1.5vmax;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
+#events .running .title {
+    font-weight: bold;
+}
+
+#events .stopped a {
+    color: #ccc;
+}
+
+img {
+    width: 5vmax;
+    height:5vmax;
+    margin:1vmax;
+}
+
+#meters {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bar {
+    text-align: center;
+    width: 10vmax;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+#rms, #peak {
+    color: white;
+    background: green;
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    bottom: 0;
+    height: 0%;
+    transition: all 1s linear;
+    vertical-align: bottom;
+}
+
+#rmsLabel, #peakLabel {
+    text-shadow: 1px 1px 1px black;
+    font-size: 5vmax;
+}
+
+#peak {
+    color: black;
+    background: #66ff66;
+}
+
+#peak.mediumPeak {
+    color: black;
+    background: yellow\!important;
+    transition: all 1s linear;
+}
+
+#peak.loudPeak {
+    background: red\!important;
+    transition: all 1s linear;
+}
+
+#rms.loudRms {
+    background: red\!important;
+    transition: all 1s linear;
+}
+
+#rms.silent {
+    color: black;
+    background: yellow;
+    transition: all 1s linear;
+}
+
+#rightIn {
+    margin-left: 0.5vmax;
+    margin-right: 1vmax;
+}
+
+#rightOut {
+    margin-left: 0.5vmax;
+}
+
+div.content{
+    width:100%;
+}
+
+/** clock **/
+
+body {
+    background:black;
+}
+
+.fivemin { 
+    fill: #ccc;
+}
+
+.second {
+    fill: #ccc;
+}
+
+.second.active{
+    transition: all 0.05s;
+}
+
+#clock1 .second.active,
+#clock1 tspan{
+    fill: #00ff00;
+}
+
+#clock2 .second.active,
+#clock2 tspan{
+    fill: #ffff00;
+}
+
+tspan{
+    fill: #ccc;
+    font-family: DSEG7-Classic;
+}
+
+#hm tspan{
+    font-size:9vh;
+}
+
+#s tspan{
+    font-size:6vh;
+}
+
