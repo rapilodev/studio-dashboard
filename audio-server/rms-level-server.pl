@@ -6,7 +6,6 @@ use feature 'state';
 package RmsLevelServer {
     use HTTP::Server::Simple::CGI;
     use base qw(HTTP::Server::Simple::CGI);
-
     use IO::Select;
     use Scalar::Util qw(openhandle);
     use JSON;
@@ -43,53 +42,54 @@ package RmsLevelServer {
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" type="text/javascript"></script>
     <script>
         function setChannel(peakId, peak, rmsId, rms) {
-            $(peakId + " #peakLabel").html(Math.round(peak));
-            $(rmsId + " #rmsLabel").html(Math.round(rms));
+            document.querySelector(peakId + " #peakLabel").innerHTML = Math.round(peak);
+            document.querySelector(rmsId + " #rmsLabel").innerHTML = Math.round(rms);
 
             peak *= -1;
             if (peak < 1) {
-                $(peakId).addClass("loudPeak");
+                document.querySelector(peakId).classList.add("loudPeak");
             } else {
-                $(peakId).removeClass("loudPeak");
+                document.querySelector(peakId).classList.remove("loudPeak");
             }
 
             if (peak < 3) {
-                $(peakId).addClass("mediumPeak");
+                document.querySelector(peakId).classList.add("mediumPeak");
             } else {
-                $(peakId).removeClass("mediumPeak");
+                document.querySelector(peakId).classList.remove("mediumPeak");
             }
 
             rms *= -1;
             if (rms < 18) {
-                $(rmsId).addClass("loudRms");
+                document.querySelector(rmsId).classList.add("loudRms");
             } else {
-                $(rmsId).removeClass("loudRms");
+                document.querySelector(rmsId).classList.remove("loudRms");
             }
 
             if (rms > 30) {
-                $(rmsId).addClass("silent");
+                document.querySelector(rmsId).classList.add("silent");
             } else {
-                $(rmsId).removeClass("silent");
+                document.querySelector(rmsId).classList.remove("silent");
             }
 
-            var height = 100 - peak;
-            $(peakId).css("height", height + "%");
+            var peakHeight = 100 - peak;
+            document.querySelector(peakId).style.height = peakHeight + "%";
 
-            height = 100 - rms;
-            $(rmsId).css("height", height + "%");
+            var rmsHeight = 100 - rms;
+            document.querySelector(rmsId).style.height = rmsHeight + "%";
         }
 
         function showLevel() {
-            $.getJSON('data', function(data) {
-                $('#error').html(data.error);
-                setChannel("#leftIn #peak", data.in["peak-left"], "#leftIn #rms", data.in["rms-left"]);
-                setChannel("#rightIn #peak", data.in["peak-right"], "#rightIn #rms", data.in["rms-right"]);
-                setChannel("#leftOut #peak", data.out["peak-left"], "#leftOut #rms", data.out["rms-left"]);
-                setChannel("#rightOut #peak", data.out["peak-right"], "#rightOut #rms", data.out["rms-right"]);
-            });
+            fetch('data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('error').innerHTML = data.error;
+                    setChannel("#leftIn #peak", data.in["peak-left"], "#leftIn #rms", data.in["rms-left"]);
+                    setChannel("#rightIn #peak", data.in["peak-right"], "#rightIn #rms", data.in["rms-right"]);
+                    setChannel("#leftOut #peak", data.out["peak-left"], "#leftOut #rms", data.out["rms-left"]);
+                    setChannel("#rightOut #peak", data.out["peak-right"], "#rightOut #rms", data.out["rms-right"]);
+                });
         }
 
         function updateClock() {
@@ -102,12 +102,12 @@ package RmsLevelServer {
             if (minutes < 10) minutes = "0" + minutes;
             if (seconds < 10) seconds = "0" + seconds;
 
-            $('#clock').html(hours + ':' + minutes + ':' + seconds);
+            document.getElementById('clock').innerHTML = hours + ':' + minutes + ':' + seconds;
         }
 
-        $(document).ready(function() {
-            $('#leftIn').hide();
-            $('#rightIn').hide();
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('leftIn').style.display = 'none';
+            document.getElementById('rightIn').style.display = 'none';
             showLevel();
             updateClock();
             setInterval(showLevel, 5000);
@@ -203,7 +203,7 @@ package RmsLevelServer {
 </head>
 <body>
     <div id="buttons">
-        <button onclick="$('#leftIn').toggle();$('#rightIn').toggle();">Show Input</button>
+        <button onclick="document.getElementById('leftIn').style.display = document.getElementById('leftIn').style.display === 'none' ? 'block' : 'none';document.getElementById('rightIn').style.display = document.getElementById('rightIn').style.display === 'none' ? 'block' : 'none';">Show Input</button>
     </div>
     <center>
         <div id="clock"></div>
