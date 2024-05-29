@@ -16,8 +16,8 @@ package RmsLevelServer {
     );
 
     sub handle_request {
-        my ($self, $cgi)  = @_;
-        my $path    = $cgi->path_info();
+        my ($self, $cgi) = @_;
+        my $path = $cgi->path_info();
         my $handler = $dispatch{$path};
 
         if (ref($handler) eq "CODE") {
@@ -43,162 +43,71 @@ package RmsLevelServer {
 <html>
 <head>
     <script>
-        function setChannel(peakId, peak, rmsId, rms) {
-            document.querySelector(peakId + " #peakLabel").innerHTML = Math.round(peak);
-            document.querySelector(rmsId + " #rmsLabel").innerHTML = Math.round(rms);
+        document.addEventListener('DOMContentLoaded', () => {
+            const fetchData = async () => {
+                try {
+                    const response = await fetch('data');
+                    const data = await response.json();
+                    document.getElementById('error').textContent = data.error;
+                    updateChannel('#leftIn', data.in["peak-left"], data.in["rms-left"]);
+                    updateChannel('#rightIn', data.in["peak-right"], data.in["rms-right"]);
+                    updateChannel('#leftOut', data.out["peak-left"], data.out["rms-left"]);
+                    updateChannel('#rightOut', data.out["peak-right"], data.out["rms-right"]);
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            };
 
-            peak *= -1;
-            if (peak < 1) {
-                document.querySelector(peakId).classList.add("loudPeak");
-            } else {
-                document.querySelector(peakId).classList.remove("loudPeak");
-            }
+            const updateClock = () => {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+            };
 
-            if (peak < 3) {
-                document.querySelector(peakId).classList.add("mediumPeak");
-            } else {
-                document.querySelector(peakId).classList.remove("mediumPeak");
-            }
+            const updateChannel = (selector, peak, rms) => {
+                const peakElement = document.querySelector(`${selector} #peak`);
+                const rmsElement = document.querySelector(`${selector} #rms`);
+                const peakLabel = document.querySelector(`${selector} #peakLabel`);
+                const rmsLabel = document.querySelector(`${selector} #rmsLabel`);
 
-            rms *= -1;
-            if (rms < 18) {
-                document.querySelector(rmsId).classList.add("loudRms");
-            } else {
-                document.querySelector(rmsId).classList.remove("loudRms");
-            }
+                peakLabel.textContent = Math.round(peak);
+                rmsLabel.textContent = Math.round(rms);
 
-            if (rms > 30) {
-                document.querySelector(rmsId).classList.add("silent");
-            } else {
-                document.querySelector(rmsId).classList.remove("silent");
-            }
+                peak *= -1;
+                rms *= -1;
 
-            var peakHeight = 100 - peak;
-            document.querySelector(peakId).style.height = peakHeight + "%";
+                peakElement.className = peak < 1 ? 'loudPeak' : peak < 3 ? 'mediumPeak' : '';
+                rmsElement.className = rms < 18 ? 'loudRms' : rms > 30 ? 'silent' : '';
 
-            var rmsHeight = 100 - rms;
-            document.querySelector(rmsId).style.height = rmsHeight + "%";
-        }
+                peakElement.style.height = `${100 - peak}%`;
+                rmsElement.style.height = `${100 - rms}%`;
+            };
 
-        function showLevel() {
-            fetch('data')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('error').innerHTML = data.error;
-                    setChannel("#leftIn #peak", data.in["peak-left"], "#leftIn #rms", data.in["rms-left"]);
-                    setChannel("#rightIn #peak", data.in["peak-right"], "#rightIn #rms", data.in["rms-right"]);
-                    setChannel("#leftOut #peak", data.out["peak-left"], "#leftOut #rms", data.out["rms-left"]);
-                    setChannel("#rightOut #peak", data.out["peak-right"], "#rightOut #rms", data.out["rms-right"]);
-                });
-        }
-
-        function updateClock() {
-            var now = new Date();
-            var hours = now.getHours();
-            var minutes = now.getMinutes();
-            var seconds = now.getSeconds();
-
-            if (hours < 10) hours = "0" + hours;
-            if (minutes < 10) minutes = "0" + minutes;
-            if (seconds < 10) seconds = "0" + seconds;
-
-            document.getElementById('clock').innerHTML = hours + ':' + minutes + ':' + seconds;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('leftIn').style.display = 'none';
             document.getElementById('rightIn').style.display = 'none';
-            showLevel();
+
+            fetchData();
             updateClock();
-            setInterval(showLevel, 5000);
+            setInterval(fetchData, 5000);
             setInterval(updateClock, 1000);
         });
     </script>
     <style>
-        html, body {
-            background: black;
-            font-family: sans-serif;
-        }
-
-        #content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .bar {
-            background: black;
-            margin: 0.5em;
-            text-align: center;
-            width: 150px;
-            height: 700px;
-            border: 6px solid #999;
-            overflow: hidden;
-            position: relative;
-        }
-
-        #rms, #peak {
-            color: white;
-            background: green;
-            font-size: 3rem;
-            width: 100%;
-            overflow: hidden;
-            position: absolute;
-            left: -6px;
-            border-top: 0;
-            border: 6px solid #999;
-            bottom: 0;
-            height: 0%;
-            transition: all 1s linear;
-        }
-
-        #peak {
-            color: black;
-            background: #66ff66;
-        }
-
-        #peak.mediumPeak {
-            color: black;
-            background: yellow !important;
-        }
-
-        #peak.loudPeak {
-            color: white;
-            background: red !important;
-        }
-
-        #rms.loudRms {
-            color: white;
-            background: red !important;
-        }
-
-        #rms.silent {
-            color: black;
-            background: yellow;
-        }
-
-        #rightIn {
-            margin-right: 3em;
-        }
-
-        button {
-            position: absolute;
-            top: 0;
-            right: 0;
-            padding: 1em;
-            background: #666;
-            color: white;
-            border: 0;
-        }
-
-        #clock {
-            color: white;
-            font-size: 3em;
-        }
-
-        #error {
-            color: red;
-        }
+        html, body { background: black; font-family: sans-serif; }
+        #content { display: flex; align-items: center; justify-content: center; }
+        .bar { background: black; margin: 0.5em; text-align: center; width: 150px; height: 700px; border: 6px solid #999; overflow: hidden; position: relative; }
+        #rms, #peak { color: white; background: green; font-size: 3rem; width: 100%; overflow: hidden; position: absolute; left: -6px; border-top: 0; border: 6px solid #999; bottom: 0; height: 0%; transition: all 1s linear; }
+        #peak { color: black; background: #66ff66; }
+        #peak.mediumPeak { background: yellow !important; }
+        #peak.loudPeak { color: white; background: red !important; }
+        #rms.loudRms { color: white; background: red !important; }
+        #rms.silent { color: black; background: yellow; }
+        #rightIn { margin-right: 3em; }
+        button { position: absolute; top: 0; right: 0; padding: 1em; background: #666; color: white; border: 0; }
+        #clock { color: white; font-size: 3em; }
+        #error { color: red; }
     </style>
 </head>
 <body>
